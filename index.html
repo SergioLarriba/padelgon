@@ -23,6 +23,8 @@
   --court:#133A6B; --court2:#1B4A85; --primary:#1D5BA8; --on-primary:#FFFFFF;
   --ball:#D7E83B; --t1:#F5B83D; --t2:#4FD1C5; --t1-ink:#9A6410; --t2-ink:#17786F;
   --win:#2A8F55; --loss:#C8453F;
+  /* Borde de los botones secundarios: contraste de al menos 3:1 con el fondo */
+  --btn-line:#6E8297; --team-ink:#10202F;
   /* Colores de cada jugador en la gráfica de evolución (validados para daltonismo) */
   --p0:#EDA100; --p1:#E87BA4; --p2:#2A78D6; --p3:#008300;
   --display:"Saira Condensed","Arial Narrow","Roboto Condensed",system-ui,sans-serif;
@@ -32,7 +34,7 @@
 @media (prefers-color-scheme:dark){
   :root{
     --bg:#13243A; --surface:#1B3050; --surface2:#25405F; --ink:#EAF0F7; --muted:#9FB1C6; --line:#2E4868;
-    --primary:#6FA8F0; --on-primary:#0B1A2C; --t1-ink:#F5B83D; --t2-ink:#4FD1C5; --win:#4CC27E; --loss:#F07A73;
+    --primary:#6FA8F0; --on-primary:#0B1A2C; --t1-ink:#F5B83D; --t2-ink:#4FD1C5; --win:#4CC27E; --loss:#F07A73; --btn-line:#7D98B8;
     --p0:#C98500; --p1:#D55181; --p2:#3987E5; --p3:#008300;
     color-scheme:dark;
   }
@@ -55,13 +57,14 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 .muted{color:var(--muted)} .small{font-size:.875rem}
 .screen[hidden]{display:none}
 
-.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:600;background:var(--surface2);min-height:46px}
-.btn.primary{background:var(--primary);color:var(--on-primary)}
+.btn{border:2px solid var(--btn-line);border-radius:12px;padding:12px 18px;font-weight:600;background:var(--surface);color:var(--ink);min-height:46px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.btn:active{filter:brightness(.92)}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--on-primary);box-shadow:0 3px 8px color-mix(in srgb,var(--primary) 40%,transparent)}
 .btn.big{width:100%;padding:17px;font-family:var(--display);font-weight:700;font-size:1.3rem;border-radius:14px}
 .btn.wide{width:100%}
-.btn.text{background:none;color:var(--primary);padding:10px 4px;min-height:0}
-.btn.danger{background:none;color:var(--loss)}
-.icon-btn{border:0;background:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:1.3rem}
+.btn.text{background:none;border:0;box-shadow:none;color:var(--primary);padding:10px 4px;min-height:0;text-decoration:underline;text-underline-offset:3px}
+.btn.danger{background:var(--surface);border-color:var(--loss);color:var(--loss)}
+.icon-btn{border:2px solid var(--btn-line);background:var(--surface);color:var(--ink);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:1.3rem}
 .row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .row-actions .btn{flex:1}
 
@@ -94,18 +97,19 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 
 /* ---- Configurar partido ---- */
 .teams{display:grid;gap:10px}
-.teambox{border-radius:14px;padding:12px;background:var(--surface);border-left:6px solid var(--t1)}
+.teambox{border-radius:14px;padding:12px;background:var(--surface);border-left:12px solid var(--t1)}
 .teambox.b{border-left-color:var(--t2)}
-.teambox label{font-family:var(--display);font-weight:700;font-size:1.05rem}
+.teambox label{display:inline-block;font-family:var(--display);font-weight:800;font-size:1.05rem;letter-spacing:.04em;background:var(--t1);color:var(--team-ink);padding:2px 12px;border-radius:8px}
+.teambox.b label{background:var(--t2)}
 .teambox input{width:100%;border:0;border-radius:10px;background:var(--surface2);padding:11px 12px;margin-top:6px;font-size:16px}
-.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--surface2);padding:4px;border-radius:12px}
-.seg button{border:0;background:none;border-radius:9px;padding:10px 6px;font-weight:600;font-size:.92rem}
-.seg button.on{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;background:var(--surface);border:2px solid var(--btn-line);padding:3px;border-radius:12px}
+.seg button{border:0;background:none;border-radius:9px;padding:10px 6px;font-weight:600;font-size:.92rem;color:var(--ink)}
+.seg button.on{background:var(--primary);color:var(--on-primary);box-shadow:0 1px 4px rgba(0,0,0,.2)}
 .opt-help{font-size:.85rem;color:var(--muted);margin:6px 2px 0}
 .servers{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.servers button{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:10px;font-weight:600;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.servers button.on{border-color:var(--primary)}
-.servers button .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.servers button{border:2px solid var(--btn-line);background:var(--surface);border-radius:12px;padding:10px;font-weight:600;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.servers button.on{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 16%,var(--surface));box-shadow:inset 0 0 0 1px var(--primary)}
+.servers button .dot{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:7px;vertical-align:-2px}
 .toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border-radius:14px;padding:12px 14px}
 .toggle input{width:22px;height:22px;accent-color:var(--primary)}
 .field-input{width:100%;border:0;border-radius:12px;background:var(--surface);padding:12px 14px;font-size:16px}
@@ -115,30 +119,32 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 #match[hidden]{display:none}
 .sb-top{display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px}
 .sb-top .time{flex:1;text-align:center;font-family:var(--display);font-weight:600;font-size:1.2rem;font-variant-numeric:tabular-nums;opacity:.85}
-.sb-top button{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:12px;padding:9px 14px;font-weight:600;min-height:44px}
-.sb-top button.fault{font-size:.88rem;line-height:1.15;padding:6px 10px;max-width:42vw}
+.sb-top button{border:0;background:#fff;color:var(--court);border-radius:12px;padding:9px 14px;font-weight:700;min-height:44px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.sb-top button.fault{background:transparent;color:var(--ball);border:2px solid var(--ball);box-shadow:none;font-size:.88rem;line-height:1.15;padding:6px 10px;max-width:42vw}
 .sb-top button.fault-on{background:var(--ball);color:#1b2600}
 .court{flex:1;display:flex;flex-direction:column;padding:0 10px calc(10px + env(safe-area-inset-bottom,0px));gap:0;min-height:0}
-.half{flex:1;border:0;background:var(--court2);color:#fff;border-radius:16px;position:relative;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr auto;gap:4px 10px;padding:14px 16px;text-align:left;overflow:hidden;min-height:0;touch-action:manipulation}
+.half{flex:1;border:0;background:var(--court2);color:#fff;border-radius:16px;position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto 1fr auto;gap:4px 10px;padding:14px 16px;text-align:left;overflow:hidden;min-height:0;touch-action:manipulation}
 .half::before{content:"";position:absolute;inset:10px;border:2px solid rgba(255,255,255,.16);border-radius:8px;pointer-events:none}
 .half::after{content:"";position:absolute;left:50%;top:10px;bottom:10px;border-left:2px solid rgba(255,255,255,.12);pointer-events:none}
+/* Cada pareja se reconoce por su color: banda gruesa en el borde exterior y nombres sobre fondo de color */
 .half.t0{--tc:var(--t1)} .half.t1{--tc:var(--t2)}
-.half.top{border-top:6px solid var(--tc)}
-.half.bot{border-bottom:6px solid var(--tc)}
+.half.top{border-top:14px solid var(--tc)}
+.half.bot{border-bottom:14px solid var(--tc)}
 .court.swap .half{animation:swap .45s ease-out}
 @keyframes swap{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
-.half:active{background:#22579A}
+.half:active{filter:brightness(1.2)}
 .half > *{position:relative;z-index:1}
-.names{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:2px;min-width:0}
-.pl{font-weight:600;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:7px}
-.pl .b{width:14px;height:14px;border-radius:50%;flex:none;background:transparent}
-.pl.srv .b{background:var(--ball);box-shadow:0 0 0 3px rgba(215,232,59,.25)}
-.flag{display:inline-block;margin-top:6px;align-self:flex-start;background:var(--ball);color:#1b2600;font-weight:700;font-size:.85rem;padding:3px 10px;border-radius:999px}
+.names{grid-column:1;grid-row:1;display:flex;flex-direction:column;gap:2px;min-width:0;align-self:start;background:var(--tc);color:var(--team-ink);border-radius:12px;padding:5px 12px 8px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.team-tag{font-family:var(--display);font-weight:800;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.pl{font-weight:700;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:7px}
+.pl .b{width:16px;height:16px;border-radius:50%;flex:none;background:transparent;border:2px solid rgba(16,32,47,.25)}
+.pl.srv .b{background:var(--ball);border-color:var(--team-ink)}
+.flag{display:inline-block;margin-top:6px;align-self:flex-start;background:var(--team-ink);color:var(--ball);font-weight:700;font-size:.85rem;padding:3px 10px;border-radius:999px}
 .pts{grid-column:2;grid-row:1/4;align-self:center;font-family:var(--display);font-weight:800;font-size:clamp(5rem,26vw,10rem);line-height:.8;font-variant-numeric:tabular-nums;text-align:right}
 .sets{grid-column:1;grid-row:3;display:flex;gap:6px;align-items:flex-end}
 .sg{font-family:var(--display);font-weight:700;font-size:1.8rem;line-height:1;min-width:30px;text-align:center;padding:4px 6px;border-radius:8px;background:rgba(255,255,255,.08);font-variant-numeric:tabular-nums}
 .sg sup{font-size:.55em;opacity:.8;margin-left:1px}
-.sg.cur{background:#fff;color:var(--court)}
+.sg.cur{background:var(--tc);color:var(--team-ink)}
 .sg.won{color:var(--ball)}
 .net{height:46px;display:flex;align-items:center;justify-content:center;position:relative;flex:none}
 .net::before{content:"";position:absolute;left:0;right:0;top:50%;height:12px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 2px,transparent 2px 9px),repeating-linear-gradient(0deg,rgba(255,255,255,.35) 0 2px,transparent 2px 6px);border-top:3px solid #fff}
@@ -149,15 +155,17 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 .end h2{font-size:2.4rem;margin:0}
 .end .final{font-family:var(--display);font-weight:800;font-size:3rem;letter-spacing:.04em}
 .end .btn{max-width:420px;margin:0 auto;width:100%}
-.end .btn.ghost{background:rgba(255,255,255,.12);color:#fff}
-@media (orientation:landscape) and (max-height:540px){
-  .court{flex-direction:row}
-  .net{height:auto;width:46px}
-  .net::before{left:50%;right:auto;top:0;bottom:0;width:12px;height:auto;transform:translateX(-50%);border-top:0;border-left:3px solid #fff}
-  .banner{writing-mode:vertical-rl;transform:rotate(180deg);padding:14px 4px}
-  .half.top{border-top:0;border-left:6px solid var(--tc)} .half.bot{border-bottom:0;border-right:6px solid var(--tc)}
-  .pts{font-size:clamp(4rem,18vh,8rem)}
-}
+.end .btn.ghost{background:transparent;border-color:#fff;color:#fff}
+/* Vista horizontal: una pareja a la izquierda y otra a la derecha (la elige el usuario o se activa al girar el móvil) */
+.court.h{flex-direction:row}
+.court.h .net{height:auto;width:46px}
+.court.h .net::before{left:50%;right:auto;top:0;bottom:0;width:12px;height:auto;transform:translateX(-50%);border-top:0;border-left:3px solid #fff}
+.court.h .banner{writing-mode:vertical-rl;transform:rotate(180deg);padding:14px 4px}
+.court.h .half{grid-template-columns:minmax(0,1fr);padding:12px}
+.court.h .half::after{left:10px;right:10px;top:50%;bottom:auto;border-left:0;border-top:2px solid rgba(255,255,255,.12)}
+.court.h .half.top{border-top:0;border-left:14px solid var(--tc)} .court.h .half.bot{border-bottom:0;border-right:14px solid var(--tc)}
+.court.h .pts{grid-column:1;grid-row:2;text-align:center;font-size:clamp(3.5rem,min(21vw,28vh),9rem)}
+.court.h .sets{justify-content:center;flex-wrap:wrap}
 
 /* ---- Hojas ---- */
 #sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center}
@@ -168,11 +176,10 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 .grip{width:40px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 10px}
 .sheet h2{margin-top:4px;font-size:1.75rem}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.detail-grid button{border:0;border-radius:14px;padding:14px 10px;font-weight:600;background:var(--surface);min-height:64px}
+.detail-grid button{border:2px solid var(--btn-line);border-left-width:8px;border-radius:14px;padding:14px 10px 14px 14px;font-weight:600;background:var(--surface);min-height:58px;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .detail-grid button small{display:block;font-weight:400;color:var(--muted);font-size:.8rem}
 .det-h{margin:14px 0 0;font-size:1.1rem}
 .det-h small{display:block;font-family:var(--body);font-weight:400;font-size:.8rem;color:var(--muted)}
-.detail-grid button{min-height:54px;border-left:5px solid transparent;text-align:left;padding-left:14px}
 .detail-grid .kw{border-left-color:var(--win)} .detail-grid .kf{border-left-color:var(--t1)} .detail-grid .ku{border-left-color:var(--loss)}
 .pl-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .pl-table th{font-weight:500;font-size:.78rem;color:var(--muted);text-align:center;padding:8px 4px}
@@ -183,11 +190,16 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 /* ---- Estadísticas ---- */
 .cmp{background:var(--surface);border-radius:16px;padding:6px 16px}
 .cmp-head{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;padding:10px 0;font-family:var(--display);font-weight:700;font-size:1.05rem}
-.cmp-head span:first-child{color:var(--t1-ink)} .cmp-head span:last-child{color:var(--t2-ink);text-align:right}
+.cmp-head .tm{justify-self:start;background:var(--t1);color:var(--team-ink);border-radius:8px;padding:3px 10px}
+.cmp-head .tm.b{justify-self:end;background:var(--t2);text-align:right}
 .cmp-row{padding:9px 0;border-top:1px solid var(--line)}
 .cmp-row .lbl{text-align:center;font-size:.85rem;color:var(--muted)}
 .cmp-row .vals{display:flex;justify-content:space-between;font-family:var(--display);font-weight:700;font-size:1.25rem;font-variant-numeric:tabular-nums}
-.bar{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--surface2);margin-top:4px}
+.cmp-row .vals span:first-child{color:var(--t1-ink)} .cmp-row .vals span:last-child{color:var(--t2-ink)}
+.bar{display:flex;gap:3px;height:10px;border-radius:5px;overflow:hidden;background:var(--surface2);margin-top:4px}
+.tdot{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+.pick{margin:8px 6px 2px;padding:8px 12px;border-radius:10px;background:var(--surface2);border-left:6px solid var(--btn-line);font-size:.9rem;line-height:1.35}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px}
 .bar i{display:block;background:var(--t1)} .bar i+i{background:var(--t2)}
 .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .kpi{background:var(--surface);border-radius:14px;padding:12px 14px}
@@ -209,6 +221,16 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 #mini{position:fixed;left:12px;right:12px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:30;max-width:576px;margin:0 auto;background:var(--court);color:#fff;border:0;border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:600}
 #mini[hidden]{display:none}
 #mini b{font-family:var(--display);font-size:1.25rem}
+/* Diálogos de confirmación propios (en lugar de confirm y prompt del navegador) */
+#dlg{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px}
+#dlg[hidden]{display:none}
+.dlg{position:relative;width:100%;max-width:420px;background:var(--bg);color:var(--ink);border-radius:20px;padding:20px 18px 18px;box-shadow:0 14px 40px rgba(0,0,0,.4);animation:pop .18s ease-out}
+.dlg h2{margin:0 0 6px;font-size:1.6rem;line-height:1.1}
+.dlg p{margin:0;color:var(--muted)}
+.dlg .field-input{margin-top:12px;border:2px solid var(--btn-line)}
+.dlg .row-actions{margin-top:18px}
+.btn.danger-fill{background:var(--loss);border-color:var(--loss);color:var(--on-primary)}
+@keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:none;opacity:1}}
 #toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.92rem;max-width:90vw;text-align:center}
 #toast[hidden]{display:none}
 </style>
@@ -234,6 +256,7 @@ h3{font-family:var(--display);font-weight:700;font-size:1.2rem;margin:18px 0 6px
 
 <div id="match" hidden></div>
 <div id="sheet" hidden><div class="scrim" data-act="closesheet"></div><div class="sheet" role="dialog" aria-modal="true"><div class="grip"></div><div id="sheetBody"></div></div></div>
+<div id="dlg" hidden></div>
 <datalist id="playersList"></datalist>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 <div id="toast" role="status" hidden></div>
@@ -259,7 +282,7 @@ const MODES = { ventaja: 'Ventaja', oro: 'Punto de oro', star: 'Star Point' };
 
 /* ---------- Datos ---------- */
 function fresh() { return { v: 1, players: [], matches: [], active: null,
-  settings: { me: null, last: { mode: 'star', bestOf: 3, tb: true, superTB: false, detail: false } } }; }
+  settings: { me: null, layout: 'auto', last: { mode: 'star', bestOf: 3, tb: true, superTB: false, detail: false } } }; }
 function migrate(d) { const f = fresh(); const o = Object.assign(f, d); o.settings = Object.assign(fresh().settings, d.settings || {}); o.settings.last = Object.assign(fresh().settings.last, (d.settings || {}).last || {}); return o; }
 function load() { try { const r = localStorage.getItem(KEY); if (r) return migrate(JSON.parse(r)); } catch (e) {} return fresh(); }
 let S = load();
@@ -275,13 +298,21 @@ const meName = () => player(S.settings.me)?.name || '';
    "Deshacer" es tan fiable.
    ========================================================= */
 const need = cfg => Math.ceil(cfg.bestOf / 2);
-function serveSeq(cfg) { const f = cfg.first, o = cfg.otherFirst; return [f, o, f ^ 1, o ^ 1]; }
-function newState(cfg) { const st = { sets: [], g: [0, 0], p: [0, 0], tb: false, sup: false, deuce: 0, gi: 0, tbi: 0, sw: [0, 0], done: false, winner: null }; startSet(st, cfg); return st; }
+/* Orden de saque: st.seq es la rotación de los 4 jugadores y st.base el juego en que empezó.
+   Por defecto la rotación sigue de un set al siguiente (saca la pareja que restó el último juego).
+   Al empezar cada set las parejas pueden cambiar su orden: cfg.orders[n] = { first, otherFirst }
+   fija quién saca primero en el set n (el set 1 usa cfg.first y cfg.otherFirst). */
+const setOrder = (cfg, n) => n ? cfg.orders?.[n] : { first: cfg.first, otherFirst: cfg.otherFirst };
+function newState(cfg) { const st = { sets: [], g: [0, 0], p: [0, 0], tb: false, sup: false, deuce: 0, gi: 0, tbi: 0, sw: [0, 0], seq: null, base: 0, done: false, winner: null }; startSet(st, cfg); return st; }
 function startSet(st, cfg) {
   st.g = [0, 0]; st.p = [0, 0]; st.deuce = 0; st.tb = false; st.sup = false;
+  const o = setOrder(cfg, st.sets.length);
+  if (o) { st.seq = [o.first, o.otherFirst, o.first ^ 1, o.otherFirst ^ 1]; st.base = st.gi; }
+  // Quién saca primero en este set y quién empieza en la otra pareja (para mostrarlo en el menú)
+  st.so = [st.seq[(st.gi - st.base) % 4], st.seq[(st.gi - st.base + 1) % 4]];
   if (cfg.superTB && need(cfg) > 1 && st.sw[0] === need(cfg) - 1 && st.sw[1] === need(cfg) - 1) { st.tb = true; st.sup = true; st.tbi = st.gi; }
 }
-function serverPlayer(st, cfg) { const idx = st.tb ? st.tbi + Math.ceil((st.p[0] + st.p[1]) / 2) : st.gi; return serveSeq(cfg)[idx % 4]; }
+function serverPlayer(st, cfg) { const idx = st.tb ? st.tbi + Math.ceil((st.p[0] + st.p[1]) / 2) : st.gi; return st.seq[(idx - st.base) % 4]; }
 const serverTeam = (st, cfg) => serverPlayer(st, cfg) < 2 ? 0 : 1;
 const isDecisive = (st, cfg) => !st.tb && st.p[0] === 3 && st.p[1] === 3 && (cfg.mode === 'oro' || (cfg.mode === 'star' && st.deuce >= 3));
 function winSet(st, cfg, w, ev, fromTB) {
@@ -326,11 +357,13 @@ function replay(m) {
   const X = { won: [0, 0], srvPts: [0, 0], srvWon: [0, 0], srvGames: [0, 0], held: [0, 0], bp: [0, 0], bpWon: [0, 0],
     dec: 0, decWon: [0, 0], maxRun: [0, 0], pl: [0, 1, 2, 3].map(() => ({ w: 0, f: 0, u: 0 })), diff: [0], setAt: [], games: [0, 0],
     serves: [0, 0], f1: [0, 0], df: [0, 0], sides: 0,
-    sv: [0, 1, 2, 3].map(() => ({ n: 0, f1: 0, df: 0 })), bal: [[0], [0], [0], [0]] };
+    sv: [0, 1, 2, 3].map(() => ({ n: 0, f1: 0, df: 0 })), bal: [[0], [0], [0], [0]], at: [] };
   let run = 0, runT = -1, last = null;
   for (const pt of m.points) {
     if (st.done) break;
     const sp = serverPlayer(st, cfg), srv = sp < 2 ? 0 : 1, rec = 1 - srv, wasTB = st.tb;
+    // Dónde se jugó cada punto (set, juego y marcador antes del punto), para las gráficas
+    X.at.push({ set: st.sets.length + 1, g: [...st.g], tb: st.tb, sup: st.sup, dec: isDecisive(st, cfg), lab: pointLabels(st, cfg), t: pt.t, k: pt.k, pl: pt.pl });
     if (!wasTB && outcomeIf(st, cfg, rec).game) { X.bp[rec]++; if (pt.t === rec) X.bpWon[rec]++; }
     const ev = step(st, cfg, pt.t); last = ev;
     X.won[pt.t]++;
@@ -356,10 +389,11 @@ function replay(m) {
   X.gamesTotal = gt;
   return { st, X, last };
 }
-function pointLabels(st) {
+// Con Star Point la ventaja lleva su número (AD1, AD2) para saber cuál se está jugando
+function pointLabels(st, cfg) {
   if (st.tb) return [String(st.p[0]), String(st.p[1])];
-  const [a, b] = st.p, map = ['0', '15', '30', '40'];
-  if (a >= 3 && b >= 3) return a === b ? ['40', '40'] : a > b ? ['AD', '40'] : ['40', 'AD'];
+  const [a, b] = st.p, map = ['0', '15', '30', '40'], ad = cfg.mode === 'star' ? 'AD' + st.deuce : 'AD';
+  if (a >= 3 && b >= 3) return a === b ? ['40', '40'] : a > b ? [ad, '40'] : ['40', ad];
   return [map[a], map[b]];
 }
 function setsText(st, withCurrent) {
@@ -373,6 +407,30 @@ let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
 function openSheet(html) { $('#sheetBody').innerHTML = html; $('#sheet').hidden = false; $('.sheet').scrollTop = 0; }
 function closeSheet() { $('#sheet').hidden = true; $('#sheetBody').innerHTML = ''; }
+/* Diálogo con el estilo de la app. Devuelve una promesa: true/false, o el texto escrito
+   (null si se cancela) cuando se pasa value para pedir un dato. */
+function ask({ title, text = '', ok = 'Aceptar', cancel = 'Cancelar', danger = false, value = null }) {
+  return new Promise(resolve => {
+    const d = $('#dlg'), input = value != null;
+    d.innerHTML = `<div class="scrim" data-dlg="0"></div>
+      <form class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="dlgT">
+        <h2 id="dlgT">${esc(title)}</h2>${text ? `<p>${esc(text)}</p>` : ''}
+        ${input ? `<input class="field-input" id="dlgIn" value="${esc(value)}" autocomplete="off">` : ''}
+        <div class="row-actions"><button type="button" class="btn" data-dlg="0">${esc(cancel)}</button>
+          <button type="submit" class="btn ${danger ? 'danger-fill' : 'primary'}">${esc(ok)}</button></div>
+      </form>`;
+    d.hidden = false;
+    const done = yes => {
+      const v = input ? (yes ? $('#dlgIn').value : null) : yes;
+      d.hidden = true; d.innerHTML = ''; document.removeEventListener('keydown', onKey); resolve(v);
+    };
+    const onKey = e => { if (e.key === 'Escape') done(false); };
+    document.addEventListener('keydown', onKey);
+    d.querySelectorAll('[data-dlg]').forEach(b => b.addEventListener('click', () => done(false)));
+    d.querySelector('form').addEventListener('submit', e => { e.preventDefault(); done(true); });
+    const f = input ? $('#dlgIn') : d.querySelector('[type=submit]'); f.focus(); if (input) f.select();
+  });
+}
 const vib = p => { try { navigator.vibrate?.(p); } catch (e) {} };
 let wake = null;
 async function keepAwake(on) {
@@ -380,6 +438,14 @@ async function keepAwake(on) {
 }
 const short = n => String(n).trim().split(/\s+/)[0];
 const teamNames = (m, t) => `${m.names[t * 2]} y ${m.names[t * 2 + 1]}`;
+const shortTeam = (m, t) => `${short(m.names[t * 2])} y ${short(m.names[t * 2 + 1])}`;
+/* Vista del marcador: 'v' una pareja arriba y otra abajo, 'h' izquierda y derecha,
+   'auto' horizontal solo con el móvil girado */
+const LANDSCAPE = matchMedia('(orientation:landscape) and (max-height:540px)');
+const horizontal = () => S.settings.layout === 'h' || (S.settings.layout !== 'v' && LANDSCAPE.matches);
+const layoutSeg = from => `<div class="seg">${[['auto', 'Automática'], ['v', 'Vertical'], ['h', 'Horizontal']].map(([v, l]) =>
+  `<button class="${S.settings.layout === v ? 'on' : ''}" data-act="layout" data-v="${v}" data-from="${from}">${l}</button>`).join('')}</div>
+  <p class="opt-help">Vertical: una pareja arriba y otra abajo. Horizontal: una a la izquierda y otra a la derecha. Automática: horizontal al girar el móvil.</p>`;
 function refreshDatalist() { $('#playersList').innerHTML = S.players.map(p => `<option value="${esc(p.name)}">`).join(''); }
 
 /* =========================================================
@@ -487,7 +553,7 @@ function renderMatch() {
   $('#miniScore').textContent = setsText(st, true);
   if (!ui.open) { el.hidden = true; return; }
   el.hidden = false;
-  const labels = pointLabels(st), sp = st.done ? -1 : serverPlayer(st, m.cfg), srvT = sp < 2 ? 0 : 1;
+  const labels = pointLabels(st, m.cfg), sp = st.done ? -1 : serverPlayer(st, m.cfg), srvT = sp < 2 ? 0 : 1;
   const flags = [0, 1].map(t => {
     if (st.done) return '';
     const ev = outcomeIf(st, m.cfg, t);
@@ -514,7 +580,7 @@ function renderMatch() {
       return `<span class="sg ${won ? 'won' : ''}">${v}${s.tb && !s.sup ? `<sup>${s.tb[t]}</sup>` : ''}</span>`;
     }).join('') + (st.done || st.sup ? '' : `<span class="sg cur">${st.g[t]}</span>`);
     return `<button class="half t${t} ${pos}" data-act="pt" data-t="${t}" aria-label="Punto para ${esc(teamNames(m, t))}">
-      <div class="names">${[0, 1].map(k => { const i = t * 2 + k; return `<span class="pl ${sp === i ? 'srv' : ''}"><span class="b"></span>${esc(m.names[i])}</span>`; }).join('')}
+      <div class="names"><span class="team-tag">Pareja ${t + 1}</span>${[0, 1].map(k => { const i = t * 2 + k; return `<span class="pl ${sp === i ? 'srv' : ''}"><span class="b"></span>${esc(m.names[i])}</span>`; }).join('')}
         ${flags[t] ? `<span class="flag">${flags[t]}</span>` : ''}</div>
       <div class="pts">${st.done ? '' : labels[t]}</div>
       <div class="sets">${setCells}</div>
@@ -524,7 +590,7 @@ function renderMatch() {
     <header class="sb-top"><button data-act="mmenu" aria-label="Menú del partido">Menú</button><span class="time" id="mTime">${clock(Date.now() - m.start)}</span>
       ${st.done ? '' : `<button data-act="fault" class="fault ${m.fault ? 'fault-on' : ''}">${m.fault ? 'Fallar segundo saque' : 'Fallar primer saque'}</button>`}
       <button data-act="undo" ${m.points.length || m.fault ? '' : 'disabled style="opacity:.4"'}>Deshacer</button></header>
-    <div class="court ${swapped ? 'swap' : ''}">${half(flip ? 1 : 0, 'top')}<div class="net">${banner}</div>${half(flip ? 0 : 1, 'bot')}</div>
+    <div class="court ${horizontal() ? 'h' : ''} ${swapped ? 'swap' : ''}">${half(flip ? 1 : 0, 'top')}<div class="net">${banner}</div>${half(flip ? 0 : 1, 'bot')}</div>
     ${st.done ? `<div class="end"><h2>Ganan ${esc(teamNames(m, st.winner))}</h2><div class="final">${esc(setsText(st))}</div>
       <p style="opacity:.8;margin:0 0 10px">${dur(Date.now() - m.start)} de partido</p>
       <button class="btn primary big" data-act="savematch">Guardar partido</button>
@@ -563,22 +629,33 @@ function openPointDetail(t) {
     <button class="btn wide" style="margin-top:10px" data-act="closesheet">Sin detalle</button>`);
 }
 function openMatchMenu() {
-  const m = S.active, nm = i => esc(m.names[i]);
-  const other = m.cfg.first < 2 ? [2, 3] : [0, 1];
+  const m = S.active, nm = i => esc(m.names[i]), { st } = replay(m), [first, otherFirst] = st.so;
+  const other = first < 2 ? [2, 3] : [0, 1], fresh = !st.g[0] && !st.g[1] && !st.p[0] && !st.p[1];
+  const setName = st.sup ? 'el súper tie-break' : `el set ${st.sets.length + 1}`;
+  const srvBtn = (act, i, on) => `<button class="${on ? 'on' : ''}" data-act="${act}" data-i="${i}"><span class="dot" style="background:var(${i < 2 ? '--t1' : '--t2'})"></span>${nm(i)}</button>`;
   openSheet(`<h2>Partido</h2>
     <p class="muted small" style="margin-top:-6px">${MODES[m.cfg.mode]}, ${m.cfg.bestOf === 1 ? 'a 1 set' : 'al mejor de ' + m.cfg.bestOf}${m.cfg.superTB ? ', super tie-break' : ''}</p>
     <button class="btn wide" data-act="minimize">Volver al inicio sin cerrar el partido</button>
+    <h3>Vista del marcador</h3>${layoutSeg('menu')}
     <h3>Cambiar de lado</h3>
     <p class="muted small" style="margin-top:0">El marcador cambia a las parejas de lado solo en cada cambio de campo. Si no coincide con la pista, corrígelo aquí.</p>
-    <button class="btn wide" data-act="mflip">Intercambiar arriba y abajo</button>
-    <h3>Corregir el orden de saque</h3>
-    <p class="muted small" style="margin-top:0">Si os equivocasteis al empezar, cámbialo aquí y el marcador se recalcula.</p>
-    <div class="servers">${[0, 1, 2, 3].map(i => `<button class="${m.cfg.first === i ? 'on' : ''}" data-act="mfirst" data-i="${i}"><span class="dot" style="background:var(${i < 2 ? '--t1' : '--t2'})"></span>${nm(i)}</button>`).join('')}</div>
-    <p class="opt-help">En la otra pareja sacó primero:</p>
-    <div class="servers">${other.map(i => `<button class="${m.cfg.otherFirst === i ? 'on' : ''}" data-act="mother" data-i="${i}"><span class="dot" style="background:var(${i < 2 ? '--t1' : '--t2'})"></span>${nm(i)}</button>`).join('')}</div>
+    <button class="btn wide" data-act="mflip">Intercambiar las parejas de lado</button>
+    ${st.done ? '' : `<h3>Orden de saque en ${setName}</h3>
+    <p class="muted small" style="margin-top:0">${fresh ? 'Al empezar cada set, cada pareja puede cambiar quién saca primero. Ya está puesto el orden que toca según el set anterior: cámbialo solo si lo habéis decidido así.'
+      : 'Si os equivocasteis al empezar este set, corrígelo aquí. Se recalcula solo este set; los anteriores no cambian.'}</p>
+    <p class="opt-help">${fresh ? 'Saca primero:' : 'Sacó primero en este set:'}</p>
+    <div class="servers">${[0, 1, 2, 3].map(i => srvBtn('mfirst', i, first === i)).join('')}</div>
+    <p class="opt-help">${fresh ? 'En la otra pareja saca primero:' : 'En la otra pareja sacó primero:'}</p>
+    <div class="servers">${other.map(i => srvBtn('mother', i, otherFirst === i)).join('')}</div>`}
     <h3>Terminar</h3>
     <button class="btn wide" data-act="saveunfinished">Guardar sin terminar</button>
     <button class="btn danger wide" style="margin-top:6px" data-act="discard">Descartar partido</button>`);
+}
+// Cambia el orden de saque del set en juego (el del set 1 queda en cfg.first y cfg.otherFirst)
+function setServeOrder(m, first, otherFirst) {
+  const n = replay(m).st.sets.length;
+  if (n) (m.cfg.orders ||= {})[n] = { first, otherFirst }; else Object.assign(m.cfg, { first, otherFirst });
+  save(); renderMatch(); openMatchMenu();
 }
 function saveMatch(finished) {
   const m = S.active, { st } = replay(m);
@@ -604,25 +681,58 @@ function setSegments(st, X) {
     const e = X.setAt[i] ?? d.length - 1; if (e <= s) return;
     const r = st.sets[i];
     const score = r ? (r.sup ? `${r.tb[0]}-${r.tb[1]}` : `${r.g[0]}-${r.g[1]}${r.tb ? ` (${Math.min(r.tb[0], r.tb[1])})` : ''}`) : `${st.g[0]}-${st.g[1]}, sin terminar`;
-    segs.push({ n: i + 1, sup: r ? r.sup : st.sup, score, d: d.slice(s, e + 1).map(v => v - d[s]) });
+    segs.push({ n: i + 1, s, sup: r ? r.sup : st.sup, score, d: d.slice(s, e + 1).map(v => v - d[s]) });
   });
   return segs;
 }
-function momentum(st, X) {
+/* Gráficas que se pueden tocar: cada una se registra en ui.charts con su escala horizontal (x0..x1 en
+   unidades del viewBox, n puntos), las alturas de sus marcadores (ys) y lo que muestra al elegir un punto (pick). */
+const HOW = { w: 'golpe ganador', f: 'error forzado', u: 'error no forzado', e: 'error no forzado', df: 'doble falta' };
+function pointInfo(m, X, k) {
+  const a = X.at[k - 1]; if (!a) return 'Antes del primer punto.';
+  const sc = `${a.lab[0]}-${a.lab[1]}`;
+  const where = a.sup ? `Súper tie-break, con ${sc}` : a.tb ? `Set ${a.set}, tie-break, con ${sc}`
+    : `Set ${a.set}, juego ${a.g[0] + a.g[1] + 1} (${a.g[0]}-${a.g[1]}), ${a.dec ? (m.cfg.mode === 'star' ? 'en el Star Point' : 'en el punto de oro') : 'con ' + sc}`;
+  const how = a.pl != null && HOW[a.k] ? `, ${HOW[a.k]} de ${short(m.names[a.pl])}` : '';
+  return `Punto ${k} de ${X.at.length}. ${where}. Punto para ${shortTeam(m, a.t)}${how}.`;
+}
+function showPick(box, text, t) {
+  const p = box.querySelector('.pick'); p.textContent = text;
+  p.style.borderLeftColor = t == null ? '' : `var(--t${t + 1})`;
+}
+function chartPick(e) {
+  const svg = e.target.closest?.('.ichart > svg'); if (!svg) return;
+  const box = svg.closest('.ichart'), C = ui.charts?.[+box.dataset.ci]; if (!C) return;
+  const r = svg.getBoundingClientRect();
+  const k = Math.max(0, Math.min(C.n - 1, Math.round(((e.clientX - r.left) / r.width * C.W - C.x0) / (C.x1 - C.x0) * (C.n - 1))));
+  const cr = svg.querySelector('.pc-cross'), ys = C.ys(k);
+  cr.setAttribute('x1', C.x(k)); cr.setAttribute('x2', C.x(k)); cr.setAttribute('opacity', '.5');
+  svg.querySelectorAll('.pc-dot').forEach((d, i) => { d.setAttribute('cx', C.x(k)); d.setAttribute('cy', ys[i]); d.setAttribute('opacity', '1'); });
+  C.pick(k, box);
+}
+function momentum(m, st, X) {
   const segs = setSegments(st, X).filter(g => g.d.length >= 3); if (!segs.length) return '';
   const W = 340, H = 120, P = 10, max = Math.max(3, ...segs.flatMap(g => g.d.map(Math.abs)));
   return segs.map(g => {
     const d = g.d, x = i => P + i * (W - 2 * P) / (d.length - 1), y = v => H / 2 - v / max * (H / 2 - P);
     const pts = d.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-    return `<div class="chart"><p class="small" style="margin:0 6px 4px"><b>${g.sup ? 'Súper tie-break' : `Set ${g.n}`}</b> <span class="muted">${esc(g.score)}</span></p>
-    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance de puntos de las parejas en el set ${g.n}">
+    const ci = ui.charts.push({ W, x0: P, x1: W - P, n: d.length, x, ys: k => [y(d[k])], pick: (k, box) => {
+      if (!k) return showPick(box, 'Inicio del set: igualados.', null);
+      const v = d[k], lead = v ? `${shortTeam(m, v > 0 ? 0 : 1)} +${Math.abs(v)}` : 'Igualados';
+      showPick(box, `${lead}. ${pointInfo(m, X, g.s + k)}`, X.at[g.s + k - 1].t);
+    } }) - 1;
+    return `<div class="chart ichart" data-ci="${ci}"><p class="small" style="margin:0 6px 4px"><b>${g.sup ? 'Súper tie-break' : `Set ${g.n}`}</b> <span class="muted">${esc(g.score)}</span></p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance de puntos de las parejas en el set ${g.n}" style="touch-action:pan-y">
     <defs><clipPath id="up${g.n}"><rect x="0" y="0" width="${W}" height="${H / 2}"/></clipPath><clipPath id="dn${g.n}"><rect x="0" y="${H / 2}" width="${W}" height="${H / 2}"/></clipPath></defs>
     <line x1="${P}" x2="${W - P}" y1="${H / 2}" y2="${H / 2}" stroke="var(--muted)" stroke-width="1"/>
-    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t1)" opacity=".55" clip-path="url(#up${g.n})"/>
-    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t2)" opacity=".55" clip-path="url(#dn${g.n})"/>
+    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t1)" opacity=".75" clip-path="url(#up${g.n})"/>
+    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t2)" opacity=".75" clip-path="url(#dn${g.n})"/>
     <polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/>
-  </svg></div>`;
-  }).join('') + `<p class="muted small" style="margin:4px 6px 2px">Diferencia de puntos dentro de cada set. Por encima de la línea manda la pareja 1, por debajo la pareja 2.</p>`;
+    <line class="pc-cross" x1="0" x2="0" y1="${P}" y2="${H - P}" stroke="var(--ink)" stroke-width="1" opacity="0"/>
+    <circle class="pc-dot" r="4.5" fill="var(--ink)" stroke="var(--surface)" stroke-width="2" opacity="0"/>
+  </svg><p class="pick">Toca la gráfica para ver en qué juego y punto se dio cada valor.</p></div>`;
+  }).join('') + `<div class="pc-legend"><span><i class="sw" style="background:var(--t1)"></i>${esc(shortTeam(m, 0))}, por encima</span><span><i class="sw" style="background:var(--t2)"></i>${esc(shortTeam(m, 1))}, por debajo</span></div>
+  <p class="muted small" style="margin:4px 6px 2px">Diferencia de puntos dentro de cada set.</p>`;
 }
 /* Gráfica lineal con el balance acumulado de los 4 jugadores punto a punto.
    Cada jugador tiene su color; el segundo de cada pareja va además en discontinua. */
@@ -636,26 +746,21 @@ function playerChart(m, X) {
   const dash = i => i % 2 ? ' stroke-dasharray="6 4"' : '';
   const col = i => `var(--p${i})`;
   const lines = B.map((b, i) => `<polyline points="${b.map((v, k) => `${x(k).toFixed(1)},${y(v).toFixed(1)}`).join(' ')}" fill="none" stroke="${col(i)}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${dash(i)}/>`).join('');
-  ui.pchart = { B, names: m.names, W, PL, PR, x };
-  return `<div class="chart pchart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance de cada jugador a lo largo del partido" style="touch-action:pan-y">
+  const ci = ui.charts.push({ W, x0: PL, x1: W - PR, n, x, ys: k => B.map(b => y(b[k])), pick: (k, box) => {
+    box.querySelectorAll('[data-pc]').forEach(b => b.textContent = signed(B[+b.dataset.pc][k]));
+    showPick(box, pointInfo(m, X, k), k ? X.at[k - 1].t : null);
+  } }) - 1;
+  return `<div class="chart ichart" data-ci="${ci}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance de cada jugador a lo largo del partido" style="touch-action:pan-y">
     ${X.setAt.slice(0, -1).map(i => `<line x1="${x(i)}" x2="${x(i)}" y1="${PT}" y2="${H - PB}" stroke="var(--line)" stroke-dasharray="3 4"/>`).join('')}
     <line x1="${PL}" x2="${W - PR}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)" stroke-width="1"/>
     ${[hi, 0, lo].map(v => `<text x="${PL - 6}" y="${y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${signed(v)}</text>`).join('')}
     ${lines}
     <line class="pc-cross" x1="${x(n - 1)}" x2="${x(n - 1)}" y1="${PT}" y2="${H - PB}" stroke="var(--ink)" stroke-width="1" opacity="0"/>
+    ${B.map((_, i) => `<circle class="pc-dot" r="4.5" fill="${col(i)}" stroke="var(--surface)" stroke-width="2" opacity="0"/>`).join('')}
   </svg>
   <div class="pc-legend">${[0, 1, 2, 3].map(i => `<span><svg width="22" height="8" aria-hidden="true"><line x1="1" x2="21" y1="4" y2="4" stroke="${col(i)}" stroke-width="2.5" stroke-linecap="round"${dash(i)}/></svg>${esc(short(m.names[i]))} <b data-pc="${i}">${signed(B[i][n - 1])}</b></span>`).join('')}</div>
-  <p class="muted small pc-at" style="margin:2px 6px 2px">Al final del partido. Toca la gráfica para ver cada momento.</p>
+  <p class="pick">Valores al final del partido. Toca la gráfica para ver en qué juego y punto se dio cada valor.</p>
   <p class="muted small" style="margin:4px 6px 2px">Balance acumulado: +1 por golpe ganador, −1 por error no forzado o doble falta. Las líneas discontinuas verticales separan los sets.</p></div>`;
-}
-function pchartAt(e) {
-  const svg = e.target.closest?.('.pchart svg'), P = ui.pchart; if (!svg || !P) return;
-  const r = svg.getBoundingClientRect(), n = P.B[0].length;
-  const k = Math.max(0, Math.min(n - 1, Math.round(((e.clientX - r.left) / r.width * P.W - P.PL) / (P.W - P.PL - P.PR) * (n - 1))));
-  const box = svg.closest('.pchart'), cr = svg.querySelector('.pc-cross');
-  cr.setAttribute('x1', P.x(k)); cr.setAttribute('x2', P.x(k)); cr.setAttribute('opacity', '.5');
-  box.querySelectorAll('[data-pc]').forEach(b => b.textContent = signed(P.B[+b.dataset.pc][k]));
-  box.querySelector('.pc-at').textContent = k ? `Después del punto ${k} de ${n - 1}` : 'Antes del primer punto';
 }
 /* Filas de estadísticas del partido: [etiqueta, valor 1, valor 2, número 1, número 2].
    Las usan el detalle del partido y la imagen que se exporta. */
@@ -686,32 +791,35 @@ function openMatchDetail(id, justSaved) {
   const mt = m.pids.includes(S.settings.me) ? myTeam(m) : null;
   const verdict = !m.result.finished ? 'Partido sin terminar' : `Ganan ${teamNames(m, m.result.winner)}`;
   const T = matchStats(m, X), anyDetail = T.anyDetail;
+  const head = `<div class="cmp-head"><span class="tm">${esc(shortTeam(m, 0))}</span><span></span><span class="tm b">${esc(shortTeam(m, 1))}</span></div>`;
+  const nameCell = i => `<td><span class="tdot" style="background:var(${i < 2 ? '--t1' : '--t2'})"></span>${esc(m.names[i])}</td>`;
+  ui.charts = [];
   openSheet(`<h2>${justSaved ? 'Partido guardado' : esc(verdict)}</h2>
     <p class="muted" style="margin-top:-6px">${flong(m.start)}, ${dur((m.end || Date.now()) - m.start)}${m.cfg.club ? ', ' + esc(m.cfg.club) : ''}</p>
     ${justSaved ? `<p style="margin-top:-4px"><b>${esc(verdict)}</b>${mt != null && m.result.finished ? (m.result.winner === mt ? ' <span class="tag w">Victoria</span>' : ' <span class="tag l">Derrota</span>') : ''}</p>` : ''}
     <div class="card"><div class="scoreline">${esc(m.result.text)}</div></div>
     <h3>Estadísticas</h3>
     <div class="cmp">
-      <div class="cmp-head"><span>${esc(short(m.names[0]))} y ${esc(short(m.names[1]))}</span><span></span><span>${esc(short(m.names[2]))} y ${esc(short(m.names[3]))}</span></div>
+      ${head}
       ${T.main.map(r => cmpRow(...r)).join('')}
     </div>
     ${anyDetail ? `<h3>Cómo se ganaron los puntos</h3>
     <div class="cmp">
-      <div class="cmp-head"><span>${esc(short(m.names[0]))} y ${esc(short(m.names[1]))}</span><span></span><span>${esc(short(m.names[2]))} y ${esc(short(m.names[3]))}</span></div>
+      ${head}
       ${T.how.map(r => cmpRow(...r)).join('')}
     </div>
     <h3>Por jugador</h3>
     <div class="card" style="padding:6px 14px"><table class="pl-table">
       <thead><tr><th>Jugador</th><th>Ganadores</th><th>Err. forzados</th><th>Err. no forzados</th></tr></thead>
-      <tbody>${[0, 1, 2, 3].map(i => `<tr><td style="color:var(${i < 2 ? '--t1-ink' : '--t2-ink'})">${esc(m.names[i])}</td><td>${X.pl[i].w}</td><td>${X.pl[i].f}</td><td>${X.pl[i].u}</td></tr>`).join('')}</tbody>
+      <tbody>${[0, 1, 2, 3].map(i => `<tr>${nameCell(i)}<td>${X.pl[i].w}</td><td>${X.pl[i].f}</td><td>${X.pl[i].u}</td></tr>`).join('')}</tbody>
     </table></div>` : ''}
     ${X.f1[0] + X.f1[1] ? `<h3>Saque por jugador</h3>
     <div class="card" style="padding:6px 14px"><table class="pl-table">
       <thead><tr><th>Jugador</th><th>Saques</th><th>1.º dentro</th><th>2.º dentro</th><th>Dobles faltas</th></tr></thead>
-      <tbody>${[0, 1, 2, 3].map(i => { const v = X.sv[i]; return `<tr><td style="color:var(${i < 2 ? '--t1-ink' : '--t2-ink'})">${esc(m.names[i])}</td><td>${v.n}</td><td>${pct(v.n - v.f1, v.n)}</td><td>${pct(v.f1 - v.df, v.f1)}</td><td>${v.df}</td></tr>`; }).join('')}</tbody>
+      <tbody>${[0, 1, 2, 3].map(i => { const v = X.sv[i]; return `<tr>${nameCell(i)}<td>${v.n}</td><td>${pct(v.n - v.f1, v.n)}</td><td>${pct(v.f1 - v.df, v.f1)}</td><td>${v.df}</td></tr>`; }).join('')}</tbody>
     </table></div>` : ''}
     <h3>Evolución de cada jugador</h3>${playerChart(m, X) || '<p class="muted small">Activa «Apuntar cómo acaba cada punto» al crear el partido o marca los saques fallados para ver la evolución de cada jugador.</p>'}
-    <h3>Cómo fue cada set</h3>${momentum(st, X) || '<p class="muted small">Se necesitan más puntos para dibujar la evolución.</p>'}
+    <h3>Cómo fue cada set</h3>${momentum(m, st, X) || '<p class="muted small">Se necesitan más puntos para dibujar la evolución.</p>'}
     <div class="row-actions">
       <button class="btn primary" data-act="share" data-id="${m.id}">Compartir resultado</button>
       <button class="btn primary" data-act="sharestats" data-id="${m.id}">Compartir estadísticas</button>
@@ -934,6 +1042,7 @@ function openSettings() {
     <h3>Tu nombre</h3>
     <input class="field-input" id="meEdit" value="${esc(meName())}" list="playersList" placeholder="Tu nombre">
     <button class="btn primary wide" style="margin-top:8px" data-act="setme2">Guardar nombre</button>
+    <h3>Vista del marcador</h3>${layoutSeg('settings')}
     <h3>Jugadores guardados</h3>
     ${S.players.length ? `<div class="list">${S.players.slice().sort((a, b) => a.name.localeCompare(b.name, 'es')).map(p => `<div class="item"><span class="grow"><span class="t">${esc(p.name)}${p.id === S.settings.me ? ' (tú)' : ''}</span></span>
       <button class="btn text" data-act="renplayer" data-id="${p.id}">Renombrar</button></div>`).join('')}</div>` : '<p class="muted small">Se guardan solos cuando escribes nombres en un partido.</p>'}
@@ -960,8 +1069,9 @@ const actions = {
   closesheet: closeSheet,
   setme: () => { if (setMe($('#meInput').value)) renderAll(); },
   setme2: () => { if (setMe($('#meEdit').value)) { toast('Nombre guardado'); renderAll(); openSettings(); } },
-  renplayer: b => {
-    const p = player(b.dataset.id), n = prompt('Nuevo nombre', p.name); if (!n || !n.trim()) return;
+  renplayer: async b => {
+    const p = player(b.dataset.id), n = await ask({ title: 'Renombrar jugador', text: 'El nombre cambia también en sus partidos guardados.', ok: 'Guardar', value: p.name });
+    if (!n || !n.trim()) return;
     p.name = n.trim();
     S.matches.concat(S.active ? [S.active] : []).forEach(m => m.pids.forEach((id, i) => { if (id === p.id) m.names[i] = p.name; }));
     save(); refreshDatalist(); renderAll(); openSettings();
@@ -990,13 +1100,21 @@ const actions = {
     if (m.fault) m.fault = false; else if (m.points.length) m.fault = !!m.points.pop().f1; else return;
     save(); closeSheet(); vib(10); renderMatch();
   },
+  layout: b => { S.settings.layout = b.dataset.v; save(); renderMatch(); if (b.dataset.from === 'menu') openMatchMenu(); else openSettings(); },
   mflip: () => { S.active.cfg.flip = !S.active.cfg.flip; save(); closeSheet(); renderMatch(); },
   mmenu: openMatchMenu,
-  mfirst: b => { const c = S.active.cfg, i = +b.dataset.i, same = (i < 2) === (c.first < 2); c.first = i; if (!same) c.otherFirst = i < 2 ? 2 : 0; save(); renderMatch(); openMatchMenu(); },
-  mother: b => { S.active.cfg.otherFirst = +b.dataset.i; save(); renderMatch(); openMatchMenu(); },
+  // Si el primero pasa a ser de la otra pareja, el que sacaba primero pasa a empezar en su pareja
+  mfirst: b => { const [f, o] = replay(S.active).st.so, i = +b.dataset.i; setServeOrder(S.active, i, (i < 2) === (f < 2) ? o : f); },
+  mother: b => setServeOrder(S.active, replay(S.active).st.so[0], +b.dataset.i),
   savematch: () => saveMatch(true),
-  saveunfinished: () => { if (!S.active.points.length) { toast('No hay puntos que guardar. Puedes descartar el partido.'); return; } if (confirm('¿Guardar el partido tal como está, sin terminar?')) saveMatch(false); },
-  discard: () => { if (confirm('¿Descartar este partido? Se perderá el marcador.')) { S.active = null; ui.open = false; save(); closeSheet(); keepAwake(false); renderAll(); } },
+  saveunfinished: async () => {
+    if (!S.active.points.length) { toast('No hay puntos que guardar. Puedes descartar el partido.'); return; }
+    if (await ask({ title: '¿Guardar sin terminar?', text: 'El partido se guarda tal como está y aparecerá como «Sin terminar».', ok: 'Guardar' })) saveMatch(false);
+  },
+  discard: async () => {
+    if (!await ask({ title: '¿Descartar el partido?', text: 'Se perderá el marcador y no se guardará nada.', ok: 'Descartar', danger: true })) return;
+    S.active = null; ui.open = false; save(); closeSheet(); keepAwake(false); renderAll();
+  },
   mdetail: b => openMatchDetail(b.dataset.id),
   share: b => shareMatch(b.dataset.id),
   sharestats: b => shareStats(b.dataset.id),
@@ -1005,22 +1123,25 @@ const actions = {
     const m = S.matches.find(x => x.id === b.dataset.id);
     openSetup({ names: m.pids.map((id, i) => id ? player(id)?.name || m.names[i] : ''), cfg: m.cfg });
   },
-  delmatch: b => { if (confirm('¿Borrar este partido? No se puede deshacer.')) { S.matches = S.matches.filter(m => m.id !== b.dataset.id); save(); closeSheet(); renderAll(); toast('Partido borrado'); } },
+  delmatch: async b => { if (await ask({ title: '¿Borrar este partido?', text: 'No se puede deshacer.', ok: 'Borrar', danger: true })) { S.matches = S.matches.filter(m => m.id !== b.dataset.id); save(); closeSheet(); renderAll(); toast('Partido borrado'); } },
   export: () => {
     const url = URL.createObjectURL(new Blob([JSON.stringify(S)], { type: 'application/json' }));
     const a = document.createElement('a'); a.href = url; a.download = `padelgon-copia-${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000); toast('Copia exportada');
   },
   import: () => $('#importFile').click(),
-  wipe: () => { if (confirm('¿Borrar todos los partidos, jugadores y estadísticas?') && confirm('Última confirmación: se borrará todo.')) { S = fresh(); save(); closeSheet(); refreshDatalist(); renderAll(); toast('Datos borrados'); } }
+  wipe: async () => {
+    if (await ask({ title: '¿Borrar todos los datos?', text: 'Se borrarán todos los partidos, jugadores y estadísticas de este móvil.', ok: 'Continuar', danger: true })
+      && await ask({ title: 'Última confirmación', text: 'Se borrará todo y no se puede deshacer. Si no tienes una copia exportada, cancela y expórtala antes.', ok: 'Borrar todo', danger: true })) { S = fresh(); save(); closeSheet(); refreshDatalist(); renderAll(); toast('Datos borrados'); } }
 };
 function keepSetupInputs() {
   document.querySelectorAll('[data-sname]').forEach(i => ui.setup.names[+i.dataset.sname] = i.value);
   const d = $('#optDetail'); if (d) ui.setup.detail = d.checked;
   const c = $('#optClub'); if (c) ui.setup.club = c.value;
 }
-document.addEventListener('pointerdown', pchartAt);
-document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || e.buttons) pchartAt(e); });
+document.addEventListener('pointerdown', chartPick);
+document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || e.buttons) chartPick(e); });
+LANDSCAPE.addEventListener('change', () => { if (S.active && ui.open) renderMatch(); });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
   const f = actions[b.dataset.act]; if (f) f(b, e);
@@ -1036,7 +1157,7 @@ $('#importFile').addEventListener('change', async e => {
   try {
     const d = JSON.parse(await file.text());
     if (!Array.isArray(d.matches) || !Array.isArray(d.players)) throw new Error('formato');
-    if (!confirm(`La copia tiene ${d.matches.length} partidos. Sustituirá los datos actuales. ¿Continuar?`)) return;
+    if (!await ask({ title: '¿Importar la copia?', text: `La copia tiene ${d.matches.length} partidos y sustituirá todos los datos actuales.`, ok: 'Importar', danger: true })) return;
     S = migrate(d); ui.open = false; save(); closeSheet(); refreshDatalist(); renderAll(); toast('Copia importada');
   } catch (err) { toast('Ese archivo no es una copia de Padelgon válida'); }
 });

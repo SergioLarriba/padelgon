@@ -1,5 +1,5 @@
 // Cambia este número cada vez que subas una versión nueva de la app
-const VERSION = 'padelgon-v9';
+const VERSION = 'padelgon-v11';
 const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable.png'];
 
 self.addEventListener('install', e => {
