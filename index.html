@@ -596,19 +596,33 @@ function cmpRow(label, a, b, va, vb) {
   return `<div class="cmp-row"><div class="lbl">${label}</div><div class="vals"><span>${a}</span><span>${b}</span></div>
     ${tot ? `<div class="bar"><i style="width:${va / tot * 100}%"></i><i style="width:${vb / tot * 100}%"></i></div>` : ''}</div>`;
 }
-function momentum(X) {
-  const d = X.diff; if (d.length < 3) return '';
-  const W = 340, H = 150, P = 10, max = Math.max(3, ...d.map(Math.abs));
-  const x = i => P + i * (W - 2 * P) / (d.length - 1), y = v => H / 2 - v / max * (H / 2 - P);
-  const pts = d.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución del partido punto a punto">
-    <defs><clipPath id="up"><rect x="0" y="0" width="${W}" height="${H / 2}"/></clipPath><clipPath id="dn"><rect x="0" y="${H / 2}" width="${W}" height="${H / 2}"/></clipPath></defs>
-    ${X.setAt.slice(0, -1).map(i => `<line x1="${x(i)}" x2="${x(i)}" y1="${P}" y2="${H - P}" stroke="var(--line)" stroke-dasharray="3 4"/>`).join('')}
+/* Balance de puntos de la pareja en cada set: empieza en 0 al principio de cada set.
+   Todos los sets usan la misma escala para poder compararlos. */
+function setSegments(st, X) {
+  const d = X.diff, starts = [0, ...X.setAt], segs = [];
+  starts.forEach((s, i) => {
+    const e = X.setAt[i] ?? d.length - 1; if (e <= s) return;
+    const r = st.sets[i];
+    const score = r ? (r.sup ? `${r.tb[0]}-${r.tb[1]}` : `${r.g[0]}-${r.g[1]}${r.tb ? ` (${Math.min(r.tb[0], r.tb[1])})` : ''}`) : `${st.g[0]}-${st.g[1]}, sin terminar`;
+    segs.push({ n: i + 1, sup: r ? r.sup : st.sup, score, d: d.slice(s, e + 1).map(v => v - d[s]) });
+  });
+  return segs;
+}
+function momentum(st, X) {
+  const segs = setSegments(st, X).filter(g => g.d.length >= 3); if (!segs.length) return '';
+  const W = 340, H = 120, P = 10, max = Math.max(3, ...segs.flatMap(g => g.d.map(Math.abs)));
+  return segs.map(g => {
+    const d = g.d, x = i => P + i * (W - 2 * P) / (d.length - 1), y = v => H / 2 - v / max * (H / 2 - P);
+    const pts = d.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    return `<div class="chart"><p class="small" style="margin:0 6px 4px"><b>${g.sup ? 'Súper tie-break' : `Set ${g.n}`}</b> <span class="muted">${esc(g.score)}</span></p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Balance de puntos de las parejas en el set ${g.n}">
+    <defs><clipPath id="up${g.n}"><rect x="0" y="0" width="${W}" height="${H / 2}"/></clipPath><clipPath id="dn${g.n}"><rect x="0" y="${H / 2}" width="${W}" height="${H / 2}"/></clipPath></defs>
     <line x1="${P}" x2="${W - P}" y1="${H / 2}" y2="${H / 2}" stroke="var(--muted)" stroke-width="1"/>
-    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t1)" opacity=".55" clip-path="url(#up)"/>
-    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t2)" opacity=".55" clip-path="url(#dn)"/>
+    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t1)" opacity=".55" clip-path="url(#up${g.n})"/>
+    <polygon points="${x(0)},${H / 2} ${pts} ${x(d.length - 1)},${H / 2}" fill="var(--t2)" opacity=".55" clip-path="url(#dn${g.n})"/>
     <polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round"/>
-  </svg><p class="muted small" style="margin:4px 6px 2px">Por encima de la línea manda la pareja 1, por debajo la pareja 2. Las líneas discontinuas separan los sets.</p></div>`;
+  </svg></div>`;
+  }).join('') + `<p class="muted small" style="margin:4px 6px 2px">Diferencia de puntos dentro de cada set. Por encima de la línea manda la pareja 1, por debajo la pareja 2.</p>`;
 }
 /* Gráfica lineal con el balance acumulado de los 4 jugadores punto a punto.
    Cada jugador tiene su color; el segundo de cada pareja va además en discontinua. */
@@ -643,13 +657,35 @@ function pchartAt(e) {
   box.querySelectorAll('[data-pc]').forEach(b => b.textContent = signed(P.B[+b.dataset.pc][k]));
   box.querySelector('.pc-at').textContent = k ? `Después del punto ${k} de ${n - 1}` : 'Antes del primer punto';
 }
+/* Filas de estadísticas del partido: [etiqueta, valor 1, valor 2, número 1, número 2].
+   Las usan el detalle del partido y la imagen que se exporta. */
+function matchStats(m, X) {
+  const tsum = (t, k) => X.pl[t * 2][k] + X.pl[t * 2 + 1][k];
+  const r = (l, a, b, va = a, vb = b) => [l, a, b, va, vb];
+  const main = [
+    r('Puntos ganados', X.won[0], X.won[1]),
+    r('Juegos ganados', X.gamesTotal[0], X.gamesTotal[1]),
+    r('Puntos ganados al saque', pct(X.srvWon[0], X.srvPts[0]), pct(X.srvWon[1], X.srvPts[1]), X.srvWon[0], X.srvWon[1]),
+    r('Juegos al saque ganados', `${X.held[0]}/${X.srvGames[0]}`, `${X.held[1]}/${X.srvGames[1]}`, X.held[0], X.held[1]),
+    r('Bolas de break convertidas', `${X.bpWon[0]}/${X.bp[0]}`, `${X.bpWon[1]}/${X.bp[1]}`, X.bpWon[0], X.bpWon[1])];
+  if (X.dec) main.push(r(m.cfg.mode === 'star' ? 'Star Points ganados' : 'Puntos de oro ganados', X.decWon[0], X.decWon[1]));
+  const anyServe = X.f1[0] + X.f1[1] > 0;
+  if (anyServe) main.push(
+    r('Primeros saques dentro', pct(X.serves[0] - X.f1[0], X.serves[0]), pct(X.serves[1] - X.f1[1], X.serves[1]), X.serves[0] - X.f1[0], X.serves[1] - X.f1[1]),
+    r('Segundos saques dentro', pct(X.f1[0] - X.df[0], X.f1[0]), pct(X.f1[1] - X.df[1], X.f1[1]), X.f1[0] - X.df[0], X.f1[1] - X.df[1]),
+    r('Dobles faltas', X.df[0], X.df[1]));
+  main.push(r('Racha más larga de puntos', X.maxRun[0], X.maxRun[1]));
+  const anyDetail = X.pl.some(p => p.w || p.f || p.u);
+  const how = anyDetail ? [r('Golpes ganadores', tsum(0, 'w'), tsum(1, 'w')), r('Errores forzados cometidos', tsum(0, 'f'), tsum(1, 'f')),
+    r('Errores no forzados cometidos', tsum(0, 'u'), tsum(1, 'u'))] : null;
+  return { main, how, anyDetail, anyServe };
+}
 function openMatchDetail(id, justSaved) {
   const m = S.matches.find(x => x.id === id); if (!m) return;
   const { st, X } = replay(m);
   const mt = m.pids.includes(S.settings.me) ? myTeam(m) : null;
   const verdict = !m.result.finished ? 'Partido sin terminar' : `Ganan ${teamNames(m, m.result.winner)}`;
-  const anyDetail = X.pl.some(p => p.w || p.f || p.u);
-  const tsum = (t, k) => X.pl[t * 2][k] + X.pl[t * 2 + 1][k];
+  const T = matchStats(m, X), anyDetail = T.anyDetail;
   openSheet(`<h2>${justSaved ? 'Partido guardado' : esc(verdict)}</h2>
     <p class="muted" style="margin-top:-6px">${flong(m.start)}, ${dur((m.end || Date.now()) - m.start)}${m.cfg.club ? ', ' + esc(m.cfg.club) : ''}</p>
     ${justSaved ? `<p style="margin-top:-4px"><b>${esc(verdict)}</b>${mt != null && m.result.finished ? (m.result.winner === mt ? ' <span class="tag w">Victoria</span>' : ' <span class="tag l">Derrota</span>') : ''}</p>` : ''}
@@ -657,23 +693,12 @@ function openMatchDetail(id, justSaved) {
     <h3>Estadísticas</h3>
     <div class="cmp">
       <div class="cmp-head"><span>${esc(short(m.names[0]))} y ${esc(short(m.names[1]))}</span><span></span><span>${esc(short(m.names[2]))} y ${esc(short(m.names[3]))}</span></div>
-      ${cmpRow('Puntos ganados', X.won[0], X.won[1], X.won[0], X.won[1])}
-      ${cmpRow('Juegos ganados', X.gamesTotal[0], X.gamesTotal[1], X.gamesTotal[0], X.gamesTotal[1])}
-      ${cmpRow('Puntos ganados al saque', pct(X.srvWon[0], X.srvPts[0]), pct(X.srvWon[1], X.srvPts[1]), X.srvWon[0], X.srvWon[1])}
-      ${cmpRow('Juegos al saque ganados', `${X.held[0]}/${X.srvGames[0]}`, `${X.held[1]}/${X.srvGames[1]}`, X.held[0], X.held[1])}
-      ${cmpRow('Bolas de break convertidas', `${X.bpWon[0]}/${X.bp[0]}`, `${X.bpWon[1]}/${X.bp[1]}`, X.bpWon[0], X.bpWon[1])}
-      ${X.dec ? cmpRow(m.cfg.mode === 'star' ? 'Star Points ganados' : 'Puntos de oro ganados', X.decWon[0], X.decWon[1], X.decWon[0], X.decWon[1]) : ''}
-      ${X.f1[0] + X.f1[1] ? cmpRow('Primeros saques dentro', pct(X.serves[0] - X.f1[0], X.serves[0]), pct(X.serves[1] - X.f1[1], X.serves[1]), X.serves[0] - X.f1[0], X.serves[1] - X.f1[1])
-        + cmpRow('Segundos saques dentro', pct(X.f1[0] - X.df[0], X.f1[0]), pct(X.f1[1] - X.df[1], X.f1[1]), X.f1[0] - X.df[0], X.f1[1] - X.df[1])
-        + cmpRow('Dobles faltas', X.df[0], X.df[1], X.df[0], X.df[1]) : ''}
-      ${cmpRow('Racha más larga de puntos', X.maxRun[0], X.maxRun[1], X.maxRun[0], X.maxRun[1])}
+      ${T.main.map(r => cmpRow(...r)).join('')}
     </div>
     ${anyDetail ? `<h3>Cómo se ganaron los puntos</h3>
     <div class="cmp">
       <div class="cmp-head"><span>${esc(short(m.names[0]))} y ${esc(short(m.names[1]))}</span><span></span><span>${esc(short(m.names[2]))} y ${esc(short(m.names[3]))}</span></div>
-      ${cmpRow('Golpes ganadores', tsum(0, 'w'), tsum(1, 'w'), tsum(0, 'w'), tsum(1, 'w'))}
-      ${cmpRow('Errores forzados cometidos', tsum(0, 'f'), tsum(1, 'f'), tsum(0, 'f'), tsum(1, 'f'))}
-      ${cmpRow('Errores no forzados cometidos', tsum(0, 'u'), tsum(1, 'u'), tsum(0, 'u'), tsum(1, 'u'))}
+      ${T.how.map(r => cmpRow(...r)).join('')}
     </div>
     <h3>Por jugador</h3>
     <div class="card" style="padding:6px 14px"><table class="pl-table">
@@ -686,11 +711,12 @@ function openMatchDetail(id, justSaved) {
       <tbody>${[0, 1, 2, 3].map(i => { const v = X.sv[i]; return `<tr><td style="color:var(${i < 2 ? '--t1-ink' : '--t2-ink'})">${esc(m.names[i])}</td><td>${v.n}</td><td>${pct(v.n - v.f1, v.n)}</td><td>${pct(v.f1 - v.df, v.f1)}</td><td>${v.df}</td></tr>`; }).join('')}</tbody>
     </table></div>` : ''}
     <h3>Evolución de cada jugador</h3>${playerChart(m, X) || '<p class="muted small">Activa «Apuntar cómo acaba cada punto» al crear el partido o marca los saques fallados para ver la evolución de cada jugador.</p>'}
-    <h3>Cómo fue el partido</h3>${momentum(X) || '<p class="muted small">Se necesitan más puntos para dibujar la evolución.</p>'}
+    <h3>Cómo fue cada set</h3>${momentum(st, X) || '<p class="muted small">Se necesitan más puntos para dibujar la evolución.</p>'}
     <div class="row-actions">
       <button class="btn primary" data-act="share" data-id="${m.id}">Compartir resultado</button>
-      <button class="btn" data-act="rematch" data-id="${m.id}">Revancha</button>
+      <button class="btn primary" data-act="sharestats" data-id="${m.id}">Compartir estadísticas</button>
     </div>
+    <button class="btn wide" style="margin-top:8px" data-act="rematch" data-id="${m.id}">Revancha</button>
     <button class="btn danger wide" style="margin-top:8px" data-act="delmatch" data-id="${m.id}">Borrar partido</button>`);
 }
 
@@ -721,14 +747,89 @@ async function shareMatch(id) {
   g.fillStyle = 'rgba(255,255,255,.85)'; g.fillRect(110, 560, 860, 6);
   g.fillStyle = '#fff'; g.font = F(700, 46);
   g.fillText(m.result.finished ? `Ganan ${short(m.names[m.result.winner * 2])} y ${short(m.names[m.result.winner * 2 + 1])}` : 'Partido sin terminar', 110, 940);
+  await shareCanvas(c, 'partido-padel.png', `${teamNames(m, 0)} contra ${teamNames(m, 1)}: ${m.result.text}`);
+}
+async function shareCanvas(c, name, text) {
   const blob = await new Promise(r => c.toBlob(r, 'image/png'));
-  const file = new File([blob], 'partido-padel.png', { type: 'image/png' });
-  const text = `${teamNames(m, 0)} contra ${teamNames(m, 1)}: ${m.result.text}`;
+  const file = new File([blob], name, { type: 'image/png' });
   try {
     if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
     if (navigator.share) { await navigator.share({ text }); return; }
   } catch (e) { if (e.name === 'AbortError') return; }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'partido-padel.png'; a.click(); toast('Imagen descargada');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); toast('Imagen descargada');
+}
+
+/* Imagen con las estadísticas del partido: las mismas filas que el detalle,
+   la tabla por jugador y el balance de cada set. El alto depende de lo que haya. */
+async function shareStats(id) {
+  const m = S.matches.find(x => x.id === id), { st, X } = replay(m), T = matchStats(m, X);
+  const segs = setSegments(st, X).filter(g => g.d.length >= 3);
+  try { await document.fonts.load('800 80px "Saira Condensed"'); } catch (e) {}
+  const F = (w, s) => `${w} ${s}px "Saira Condensed","Arial Narrow",sans-serif`;
+  const W = 1080, M = 80, ROW = 96, SEC = 90, TR = 58, CH = 170;
+  const h = 360 + SEC + T.main.length * ROW + (T.how ? SEC + T.how.length * ROW + SEC + TR * 5 : 0)
+    + (T.anyServe ? SEC + TR * 5 : 0) + (segs.length ? SEC + segs.length * (CH + 60) : 0) + 60;
+  const c = document.createElement('canvas'); c.width = W; c.height = h; const g = c.getContext('2d');
+  const T1 = '#F5B83D', T2 = '#4FD1C5', DIM = 'rgba(255,255,255,.7)';
+  g.fillStyle = '#133A6B'; g.fillRect(0, 0, W, h);
+  g.fillStyle = '#D7E83B'; g.beginPath(); g.arc(W - M - 34, 110, 34, 0, Math.PI * 2); g.fill();
+  g.fillStyle = '#fff'; g.font = F(700, 54); g.fillText('Padelgon', M, 130);
+  g.font = F(600, 34); g.fillStyle = DIM; g.fillText(fdate(m.start) + (m.cfg.club ? '  ' + m.cfg.club : ''), M, 180);
+  g.fillStyle = '#fff'; g.font = F(800, 64); g.fillText(m.result.text, M, 260);
+  g.font = F(700, 38); g.fillStyle = T1; g.fillText(`${short(m.names[0])} y ${short(m.names[1])}`, M, 330);
+  g.textAlign = 'right'; g.fillStyle = T2; g.fillText(`${short(m.names[2])} y ${short(m.names[3])}`, W - M, 330); g.textAlign = 'left';
+  let y = 360;
+  const title = t => { y += SEC; g.fillStyle = '#fff'; g.font = F(700, 44); g.fillText(t, M, y - 24); };
+  const rows = list => list.forEach(([l, a, b, va, vb]) => {
+    g.font = F(700, 44); g.fillStyle = '#fff'; g.fillText(String(a), M, y + 46);
+    g.textAlign = 'right'; g.fillText(String(b), W - M, y + 46);
+    g.textAlign = 'center'; g.font = F(600, 32); g.fillStyle = DIM; g.fillText(l, W / 2, y + 42); g.textAlign = 'left';
+    const tot = (va || 0) + (vb || 0), bw = W - 2 * M;
+    g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(M, y + 66, bw, 10);
+    if (tot) { g.fillStyle = T1; g.fillRect(M, y + 66, bw * va / tot - 2, 10); g.fillStyle = T2; g.fillRect(M + bw * va / tot + 2, y + 66, bw * vb / tot - 2, 10); }
+    y += ROW;
+  });
+  const table = (head, cells) => {
+    const cols = head.length, cw = (W - 2 * M - 300) / (cols - 1), cx = i => i ? M + 300 + cw * (i - 0.5) : M;
+    g.font = F(600, 30); g.fillStyle = DIM;
+    head.forEach((t, i) => { g.textAlign = i ? 'center' : 'left'; g.fillText(t, cx(i), y + 36); });
+    y += TR;
+    [0, 1, 2, 3].forEach(p => {
+      cells(p).forEach((t, i) => { g.textAlign = i ? 'center' : 'left'; g.font = F(i ? 700 : 600, 36); g.fillStyle = i ? '#fff' : p < 2 ? T1 : T2; g.fillText(String(t), cx(i), y + 38); });
+      y += TR;
+    });
+    g.textAlign = 'left';
+  };
+  title('Estadísticas'); rows(T.main);
+  if (T.how) {
+    title('Cómo se ganaron los puntos'); rows(T.how);
+    title('Por jugador'); table(['Jugador', 'Ganadores', 'Err. forz.', 'Err. no forz.'], p => [short(m.names[p]), X.pl[p].w, X.pl[p].f, X.pl[p].u]);
+  }
+  if (T.anyServe) {
+    title('Saque por jugador');
+    table(['Jugador', 'Saques', '1.º dentro', '2.º dentro', 'D. faltas'], p => { const v = X.sv[p]; return [short(m.names[p]), v.n, pct(v.n - v.f1, v.n), pct(v.f1 - v.df, v.f1), v.df]; });
+  }
+  if (segs.length) {
+    title('Cómo fue cada set');
+    const max = Math.max(3, ...segs.flatMap(s => s.d.map(Math.abs))), bw = W - 2 * M;
+    for (const s of segs) {
+      const lbl = s.sup ? 'Súper tie-break' : `Set ${s.n}`;
+      g.font = F(700, 34); g.fillStyle = '#fff'; g.fillText(lbl, M, y + 30);
+      const lx = M + g.measureText(lbl).width + 20;
+      g.font = F(600, 32); g.fillStyle = DIM; g.fillText(s.score, lx, y + 30);
+      const top = y + 50, mid = top + CH / 2, px = i => M + i * bw / (s.d.length - 1), py = v => mid - v / max * (CH / 2 - 6);
+      g.fillStyle = 'rgba(255,255,255,.06)'; g.fillRect(M, top, bw, CH);
+      [[T1, top, CH / 2], [T2, mid, CH / 2]].forEach(([col, cy, ch]) => {
+        g.save(); g.beginPath(); g.rect(M, cy, bw, ch); g.clip();
+        g.beginPath(); g.moveTo(px(0), mid); s.d.forEach((v, i) => g.lineTo(px(i), py(v))); g.lineTo(px(s.d.length - 1), mid); g.closePath();
+        g.globalAlpha = .75; g.fillStyle = col; g.fill(); g.restore();
+      });
+      g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 2; g.beginPath(); g.moveTo(M, mid); g.lineTo(W - M, mid); g.stroke();
+      g.strokeStyle = '#fff'; g.lineWidth = 3; g.lineJoin = 'round'; g.beginPath(); s.d.forEach((v, i) => i ? g.lineTo(px(i), py(v)) : g.moveTo(px(i), py(v))); g.stroke();
+      y += CH + 60;
+    }
+  }
+  await shareCanvas(c, 'estadisticas-padel.png', `Estadísticas de ${teamNames(m, 0)} contra ${teamNames(m, 1)}: ${m.result.text}`);
 }
 
 /* =========================================================
@@ -898,6 +999,7 @@ const actions = {
   discard: () => { if (confirm('¿Descartar este partido? Se perderá el marcador.')) { S.active = null; ui.open = false; save(); closeSheet(); keepAwake(false); renderAll(); } },
   mdetail: b => openMatchDetail(b.dataset.id),
   share: b => shareMatch(b.dataset.id),
+  sharestats: b => shareStats(b.dataset.id),
   rematch: b => {
     if (S.active) { toast('Ya hay un partido en juego'); return; }
     const m = S.matches.find(x => x.id === b.dataset.id);
